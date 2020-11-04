@@ -48,6 +48,9 @@ public class CacheConfiguration {
             createCache(cm, com.vdc.covid.domain.User.class.getName());
             createCache(cm, com.vdc.covid.domain.Authority.class.getName());
             createCache(cm, com.vdc.covid.domain.User.class.getName() + ".authorities");
+            createCache(cm, com.vdc.covid.domain.Shop.class.getName());
+            createCache(cm, com.vdc.covid.domain.Shop.class.getName() + ".products");
+            createCache(cm, com.vdc.covid.domain.Product.class.getName());
             // jhipster-needle-ehcache-add-entry
         };
     }
