@@ -1,0 +1,47 @@
+<div class="row justify-content-center">
+    <div class="col-8">
+        <div *ngIf="shop">
+            <h2><span jhiTranslate="covidApp.shop.detail.title">Shop</span> {{ shop.id }}</h2>
+
+            <hr>
+
+            <jhi-alert-error></jhi-alert-error>
+
+            <dl class="row-md jh-entity-details">
+                <dt><span jhiTranslate="covidApp.shop.name">Name</span></dt>
+                <dd>
+                    <span>{{ shop.name }}</span>
+                </dd>
+                <dt><span jhiTranslate="covidApp.shop.logo">Logo</span></dt>
+                <dd>
+                    <div *ngIf="shop.logo">
+                        <a (click)="openFile(shop.logoContentType, shop.logo)">
+                            <img [src]="'data:' + shop.logoContentType + ';base64,' + shop.logo" style="max-width: 100%;" alt="shop image"/>
+                        </a>
+                        {{ shop.logoContentType }}, {{ byteSize(shop.logo) }}
+                    </div>
+                </dd>
+                <dt><span jhiTranslate="covidApp.shop.address">Address</span></dt>
+                <dd>
+                    <span>{{ shop.address }}</span>
+                </dd>
+                <dt><span jhiTranslate="covidApp.shop.user">User</span></dt>
+                <dd>
+                    {{ shop.user?.login }}
+                </dd>
+            </dl>
+
+            <button type="submit"
+                    (click)="previousState()"
+                    class="btn btn-info">
+                <fa-icon icon="arrow-left"></fa-icon>&nbsp;<span jhiTranslate="entity.action.back">Back</span>
+            </button>
+
+            <button type="button"
+                    [routerLink]="['/shop', shop.id, 'edit']"
+                    class="btn btn-primary">
+                <fa-icon icon="pencil-alt"></fa-icon>&nbsp;<span jhiTranslate="entity.action.edit">Edit</span>
+            </button>
+        </div>
+    </div>
+</div>
