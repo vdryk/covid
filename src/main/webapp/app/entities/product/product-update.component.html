@@ -1,0 +1,70 @@
+<div class="row justify-content-center">
+    <div class="col-8">
+        <form name="editForm" role="form" novalidate (ngSubmit)="save()" [formGroup]="editForm">
+            <h2 id="jhi-product-heading" jhiTranslate="covidApp.product.home.createOrEditLabel">Create or edit a Product</h2>
+
+            <div>
+                <jhi-alert-error></jhi-alert-error>
+
+                <div class="form-group" [hidden]="!editForm.get('id')!.value">
+                    <label for="id" jhiTranslate="global.field.id">ID</label>
+                    <input type="text" class="form-control" id="id" name="id" formControlName="id" readonly />
+                </div>
+
+                <div class="form-group">
+                    <label class="form-control-label" jhiTranslate="covidApp.product.name" for="field_name">Name</label>
+                    <input type="text" class="form-control" name="name" id="field_name"
+                           formControlName="name"/>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-control-label" jhiTranslate="covidApp.product.thumbnail" for="field_thumbnail">Thumbnail</label>
+                    <div>
+                        <img [src]="'data:' + editForm.get('thumbnailContentType')!.value + ';base64,' + editForm.get('thumbnail')!.value" style="max-height: 100px;" *ngIf="editForm.get('thumbnail')!.value" alt="product image"/>
+                        <div *ngIf="editForm.get('thumbnail')!.value" class="form-text text-danger clearfix">
+                            <span class="pull-left">{{ editForm.get('thumbnailContentType')!.value }}, {{ byteSize(editForm.get('thumbnail')!.value) }}</span>
+                            <button type="button" (click)="clearInputImage('thumbnail', 'thumbnailContentType', 'file_thumbnail')" class="btn btn-secondary btn-xs pull-right">
+                                <fa-icon icon="times"></fa-icon>
+                            </button>
+                        </div>
+                        <input type="file" id="file_thumbnail" (change)="setFileData($event, 'thumbnail', true)" accept="image/*" jhiTranslate="entity.action.addimage"/>
+                    </div>
+                    <input type="hidden" class="form-control" name="thumbnail" id="field_thumbnail"
+                           formControlName="thumbnail"/>
+                    <input type="hidden" class="form-control" name="thumbnailContentType" id="field_thumbnailContentType"
+                           formControlName="thumbnailContentType" />
+                </div>
+
+                <div class="form-group">
+                    <label class="form-control-label" jhiTranslate="covidApp.product.description" for="field_description">Description</label>
+                    <input type="text" class="form-control" name="description" id="field_description"
+                           formControlName="description"/>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-control-label" jhiTranslate="covidApp.product.price" for="field_price">Price</label>
+                    <input type="number" class="form-control" name="price" id="field_price"
+                           formControlName="price"/>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-control-label" jhiTranslate="covidApp.product.shop" for="field_shop">Shop</label>
+                    <select class="form-control" id="field_shop" name="shop" formControlName="shop">
+                        <option [ngValue]="null"></option>
+                        <option [ngValue]="shopOption.id === editForm.get('shop')!.value?.id ? editForm.get('shop')!.value : shopOption" *ngFor="let shopOption of shops; trackBy: trackById">{{ shopOption.id }}</option>
+                    </select>
+                </div>
+            </div>
+
+            <div>
+                <button type="button" id="cancel-save" class="btn btn-secondary" (click)="previousState()">
+                    <fa-icon icon="ban"></fa-icon>&nbsp;<span jhiTranslate="entity.action.cancel">Cancel</span>
+                </button>
+
+                <button type="submit" id="save-entity" [disabled]="editForm.invalid || isSaving" class="btn btn-primary">
+                    <fa-icon icon="save"></fa-icon>&nbsp;<span jhiTranslate="entity.action.save">Save</span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
