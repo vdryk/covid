@@ -1,0 +1,20 @@
+entity Shop {
+	name String
+    logo ImageBlob
+    address String
+}
+
+entity Product {
+	name String
+    thumbnail ImageBlob
+    description String
+    price Double
+}
+
+relationship ManyToOne {
+  Shop{user(login)} to User
+}
+
+relationship OneToMany {
+  Shop to Product
+}

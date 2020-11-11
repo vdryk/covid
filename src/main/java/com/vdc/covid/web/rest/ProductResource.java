@@ -87,7 +87,7 @@ public class ProductResource {
     @GetMapping("/products")
     public List<Product> getAllProducts() {
         log.debug("REST request to get all Products");
-        return productRepository.findAll();
+        return productRepository.findByUserIsCurrentUser();
     }
 
     /**

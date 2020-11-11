@@ -7,6 +7,7 @@ import { Account } from 'app/core/user/account.model';
 import { ShopService } from '../entities/shop/shop.service';
 import { HttpResponse } from '@angular/common/http';
 import { IShop } from '../shared/model/shop.model';
+import { ProductService } from '../entities/product/product.service';
 
 @Component({
   selector: 'jhi-home',
@@ -20,7 +21,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   constructor(private accountService: AccountService, private loginModalService: LoginModalService, protected shopService: ShopService) {}
 
-  loadAll(): void {
+  loadShops(): void {
     this.shopService.query().subscribe((res: HttpResponse<IShop[]>) => (this.shops = res.body || []));
   }
 

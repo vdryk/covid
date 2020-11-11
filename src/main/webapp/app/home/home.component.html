@@ -3,37 +3,35 @@
     <div >
         <h1 class="d-flex justify-content-center" jhiTranslate="home.title">Welcome, Java Hipster!</h1>
 
-        <form class="d-flex justify-content-center" (ngSubmit)="loadAll()">
+        <form class="d-flex justify-content-center" (ngSubmit)="loadShops()">
 
             <label>
                 <input type="text" >
             </label>
         </form>
 
-
-        <div class="table-responsive" id="entities" *ngIf="shops && shops.length > 0">
-            <table class="table table-striped" aria-describedby="page-heading">
-                <thead>
-                <tr>
-                    <th scope="col" ><span jhiTranslate="global.field.id">ID</span></th>
-                    <th scope="col" ><span jhiTranslate="covidApp.shop.name">Name</span></th>
-                    <th scope="col" ><span jhiTranslate="covidApp.shop.address">Address</span></th>
-                    <th scope="col" ><span jhiTranslate="covidApp.shop.user">User</span></th>
-                    <th scope="col"></th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr *ngFor="let shop of shops ;trackBy: trackId">
-                    <td><a [routerLink]="['/shop', shop.id, 'view']">{{ shop.id }}</a></td>
-                    <td>{{ shop.name }}</td>
-                    <td>{{ shop.address }}</td>
-                    <td>
-                        {{ shop.user?.login }}
-                    </td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
+        <ngb-accordion #a="ngbAccordion" activeIds="custom-panel-1" *ngIf="shops && shops.length">
+            <ngb-panel id="custom-panel-1" *ngFor="let shop of shops ;trackBy: trackId">
+                <ng-template ngbPanelHeader>
+                    <div class="d-flex align-items-center justify-content-between">
+                        <button ngbPanelToggle class="btn btn-link container-fluid text-left pl-0">
+                            <img [src]="'data:' + shop.logoContentType + ';base64,' + shop.logo" style="max-height: 30px;" alt="shop image"/>
+                            <span>{{ shop.name }}</span>
+                        </button>
+                    </div>
+                </ng-template>
+                <ng-template ngbPanelContent>
+                    <div *ngFor="let product of shop.products ">
+                        <span *ngIf="product.thumbnail">
+                            <img [src]="'data:' + product.thumbnailContentType + ';base64,' + product.thumbnail" style="max-height: 200px;" alt="product image"/>
+                        </span>
+                        <h3>{{ product.name }}</h3>
+                        <span>{{ product.description }}</span>
+                        <span>{{ product.price }} €</span>
+                    </div>
+                </ng-template>
+            </ngb-panel>
+        </ngb-accordion>
 
     </div>
 </div>

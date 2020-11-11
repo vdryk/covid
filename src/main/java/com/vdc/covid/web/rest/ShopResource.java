@@ -87,7 +87,7 @@ public class ShopResource {
     @GetMapping("/shops")
     public List<Shop> getAllShops() {
         log.debug("REST request to get all Shops");
-        return shopRepository.findAll();
+        return shopRepository.findByUserIsCurrentUser();
     }
 
     /**
