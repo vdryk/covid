@@ -1,4 +1,4 @@
-import { NgModule } from '@angular/core';
+import { NgModule, OnInit } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 
 import './vendor';
@@ -28,4 +28,22 @@ import { ErrorComponent } from './layouts/error/error.component';
   declarations: [MainComponent, NavbarComponent, ErrorComponent, PageRibbonComponent, ActiveMenuDirective, FooterComponent],
   bootstrap: [MainComponent],
 })
-export class CovidAppModule {}
+export class CovidAppModule implements OnInit {
+  public ngOnInit(): void {
+    this.getLocation();
+  }
+
+  //TODO marche pas, en tout cas en local
+  getLocation(): void {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition((position: Position) => {
+        if (position) {
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
+        }
+      });
+    } else {
+      alert('Geolocation is not supported by this browser.');
+    }
+  }
+}
