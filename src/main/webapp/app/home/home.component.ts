@@ -7,44 +7,37 @@ import { Account } from 'app/core/user/account.model';
 import { ShopService } from '../entities/shop/shop.service';
 import { HttpResponse } from '@angular/common/http';
 import { IShop } from '../shared/model/shop.model';
-import { ProductService } from '../entities/product/product.service';
+import { ParentComponent } from 'app/shared/parent/parent.component';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'jhi-home',
   templateUrl: './home.component.html',
   styleUrls: ['home.scss'],
 })
-export class HomeComponent implements OnInit, OnDestroy {
-  account: Account | null = null;
-  authSubscription?: Subscription;
+export class HomeComponent extends ParentComponent implements OnInit {
   shops?: IShop[];
 
-  constructor(private accountService: AccountService, private loginModalService: LoginModalService, protected shopService: ShopService) {}
+  constructor(protected shopService: ShopService) {
+    super();
+  }
 
   loadShops(): void {
-    this.shopService.query().subscribe((res: HttpResponse<IShop[]>) => (this.shops = res.body || []));
+    this.shopService
+      .query()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((res: HttpResponse<IShop[]>) => (this.shops = res.body || []));
   }
 
   ngOnInit(): void {
-    this.authSubscription = this.accountService.getAuthenticationState().subscribe(account => (this.account = account));
-  }
-
-  isAuthenticated(): boolean {
-    return this.accountService.isAuthenticated();
-  }
-
-  login(): void {
-    this.loginModalService.open();
+    this.shopService
+      .query()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((res: HttpResponse<IShop[]>) => (this.shops = res.body || []));
   }
 
   trackId(index: number, item: IShop): number {
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
     return item.id!;
-  }
-
-  ngOnDestroy(): void {
-    if (this.authSubscription) {
-      this.authSubscription.unsubscribe();
-    }
   }
 }

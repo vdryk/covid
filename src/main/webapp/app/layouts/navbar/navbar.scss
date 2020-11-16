@@ -40,3 +40,53 @@ Logo styles
   background: url('../../../content/images/logo-jhipster.png') no-repeat center center;
   background-size: contain;
 }
+
+.user-search {
+  height: 100%;
+  background-color: white;
+  width: 100%;
+  position: fixed;
+  display: flex;
+  animation: fadeOut 0.75s linear forwards;
+  align-items: center;
+  justify-content: center;
+
+  input {
+    border: none;
+    border-bottom: 3px black solid;
+    width: 50%;
+    line-height: 34px;
+  }
+
+  input:focus {
+    border: none;
+    border-bottom: 3px black solid;
+    outline-width: 0;
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.75s linear forwards;
+}
+
+@keyframes fadeOut {
+  from {
+    z-index: 99;
+    opacity: 0.9;
+  }
+  to {
+    z-index: 0;
+    opacity: 0;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    z-index: 0;
+    opacity: 0;
+  }
+  to {
+    z-index: 99;
+    opacity: 0.9;
+  }
+}

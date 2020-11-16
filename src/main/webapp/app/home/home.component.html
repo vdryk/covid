@@ -1,21 +1,13 @@
-<div >
+<div>
 
-    <div >
-        <h1 class="d-flex justify-content-center" jhiTranslate="home.title">Welcome, Java Hipster!</h1>
-
-        <form class="d-flex justify-content-center" (ngSubmit)="loadShops()">
-
-            <label>
-                <input type="text" >
-            </label>
-        </form>
-
+    <div>
         <ngb-accordion #a="ngbAccordion" activeIds="custom-panel-1" *ngIf="shops && shops.length">
             <ngb-panel id="custom-panel-1" *ngFor="let shop of shops ;trackBy: trackId">
                 <ng-template ngbPanelHeader>
                     <div class="d-flex align-items-center justify-content-between">
                         <button ngbPanelToggle class="btn btn-link container-fluid text-left pl-0">
-                            <img [src]="'data:' + shop.logoContentType + ';base64,' + shop.logo" style="max-height: 30px;" alt="shop image"/>
+                            <img [src]="'data:' + shop.logoContentType + ';base64,' + shop.logo"
+                                style="max-height: 30px;" alt="shop image" />
                             <span>{{ shop.name }}</span>
                         </button>
                     </div>
@@ -23,7 +15,8 @@
                 <ng-template ngbPanelContent>
                     <div *ngFor="let product of shop.products ">
                         <span *ngIf="product.thumbnail">
-                            <img [src]="'data:' + product.thumbnailContentType + ';base64,' + product.thumbnail" style="max-height: 200px;" alt="product image"/>
+                            <img [src]="'data:' + product.thumbnailContentType + ';base64,' + product.thumbnail"
+                                style="max-height: 200px;" alt="product image" />
                         </span>
                         <h3>{{ product.name }}</h3>
                         <span>{{ product.description }}</span>
