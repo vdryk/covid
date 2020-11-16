@@ -41,6 +41,10 @@
     "blueprints": [],
     "herokuAppName": "gentle-waters-02180",
     "herokuDeployType": "git",
-    "herokuJavaVersion": "13"
+    "herokuJavaVersion": "13",
+    "azureAppServicePlan": "covid-plan",
+    "azureApplicationInsightsName": "covid-insights",
+    "azureAppServiceName": "commercants",
+    "azureAppServiceDeploymentType": "local"
   }
 }
