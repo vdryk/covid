@@ -26,6 +26,9 @@ export class ShopUpdateComponent implements OnInit {
     logo: [],
     logoContentType: [],
     address: [],
+    email: [],
+    phone: [],
+    description: [],
     user: [],
   });
 
@@ -54,6 +57,9 @@ export class ShopUpdateComponent implements OnInit {
       logo: shop.logo,
       logoContentType: shop.logoContentType,
       address: shop.address,
+      email: shop.email,
+      phone: shop.phone,
+      description: shop.description,
       user: shop.user,
     });
   }
@@ -106,6 +112,9 @@ export class ShopUpdateComponent implements OnInit {
       logoContentType: this.editForm.get(['logoContentType'])!.value,
       logo: this.editForm.get(['logo'])!.value,
       address: this.editForm.get(['address'])!.value,
+      email: this.editForm.get(['email'])!.value,
+      phone: this.editForm.get(['phone'])!.value,
+      description: this.editForm.get(['description'])!.value,
       user: this.editForm.get(['user'])!.value,
     };
   }

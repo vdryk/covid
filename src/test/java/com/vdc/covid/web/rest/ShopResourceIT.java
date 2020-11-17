@@ -41,6 +41,15 @@ public class ShopResourceIT {
     private static final String DEFAULT_ADDRESS = "AAAAAAAAAA";
     private static final String UPDATED_ADDRESS = "BBBBBBBBBB";
 
+    private static final String DEFAULT_EMAIL = "AAAAAAAAAA";
+    private static final String UPDATED_EMAIL = "BBBBBBBBBB";
+
+    private static final Integer DEFAULT_PHONE = 1;
+    private static final Integer UPDATED_PHONE = 2;
+
+    private static final String DEFAULT_DESCRIPTION = "AAAAAAAAAA";
+    private static final String UPDATED_DESCRIPTION = "BBBBBBBBBB";
+
     @Autowired
     private ShopRepository shopRepository;
 
@@ -63,7 +72,10 @@ public class ShopResourceIT {
             .name(DEFAULT_NAME)
             .logo(DEFAULT_LOGO)
             .logoContentType(DEFAULT_LOGO_CONTENT_TYPE)
-            .address(DEFAULT_ADDRESS);
+            .address(DEFAULT_ADDRESS)
+            .email(DEFAULT_EMAIL)
+            .phone(DEFAULT_PHONE)
+            .description(DEFAULT_DESCRIPTION);
         return shop;
     }
     /**
@@ -77,7 +89,10 @@ public class ShopResourceIT {
             .name(UPDATED_NAME)
             .logo(UPDATED_LOGO)
             .logoContentType(UPDATED_LOGO_CONTENT_TYPE)
-            .address(UPDATED_ADDRESS);
+            .address(UPDATED_ADDRESS)
+            .email(UPDATED_EMAIL)
+            .phone(UPDATED_PHONE)
+            .description(UPDATED_DESCRIPTION);
         return shop;
     }
 
@@ -104,6 +119,9 @@ public class ShopResourceIT {
         assertThat(testShop.getLogo()).isEqualTo(DEFAULT_LOGO);
         assertThat(testShop.getLogoContentType()).isEqualTo(DEFAULT_LOGO_CONTENT_TYPE);
         assertThat(testShop.getAddress()).isEqualTo(DEFAULT_ADDRESS);
+        assertThat(testShop.getEmail()).isEqualTo(DEFAULT_EMAIL);
+        assertThat(testShop.getPhone()).isEqualTo(DEFAULT_PHONE);
+        assertThat(testShop.getDescription()).isEqualTo(DEFAULT_DESCRIPTION);
     }
 
     @Test
@@ -136,9 +154,16 @@ public class ShopResourceIT {
         restShopMockMvc.perform(get("/api/shops?sort=id,desc"))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
-            .andExpect(jsonPath("$.[*].id").isEmpty());
+            .andExpect(jsonPath("$.[*].id").value(hasItem(shop.getId().intValue())))
+            .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME)))
+            .andExpect(jsonPath("$.[*].logoContentType").value(hasItem(DEFAULT_LOGO_CONTENT_TYPE)))
+            .andExpect(jsonPath("$.[*].logo").value(hasItem(Base64Utils.encodeToString(DEFAULT_LOGO))))
+            .andExpect(jsonPath("$.[*].address").value(hasItem(DEFAULT_ADDRESS)))
+            .andExpect(jsonPath("$.[*].email").value(hasItem(DEFAULT_EMAIL)))
+            .andExpect(jsonPath("$.[*].phone").value(hasItem(DEFAULT_PHONE)))
+            .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION)));
     }
-
+    
     @Test
     @Transactional
     public void getShop() throws Exception {
@@ -153,7 +178,10 @@ public class ShopResourceIT {
             .andExpect(jsonPath("$.name").value(DEFAULT_NAME))
             .andExpect(jsonPath("$.logoContentType").value(DEFAULT_LOGO_CONTENT_TYPE))
             .andExpect(jsonPath("$.logo").value(Base64Utils.encodeToString(DEFAULT_LOGO)))
-            .andExpect(jsonPath("$.address").value(DEFAULT_ADDRESS));
+            .andExpect(jsonPath("$.address").value(DEFAULT_ADDRESS))
+            .andExpect(jsonPath("$.email").value(DEFAULT_EMAIL))
+            .andExpect(jsonPath("$.phone").value(DEFAULT_PHONE))
+            .andExpect(jsonPath("$.description").value(DEFAULT_DESCRIPTION));
     }
     @Test
     @Transactional
@@ -179,7 +207,10 @@ public class ShopResourceIT {
             .name(UPDATED_NAME)
             .logo(UPDATED_LOGO)
             .logoContentType(UPDATED_LOGO_CONTENT_TYPE)
-            .address(UPDATED_ADDRESS);
+            .address(UPDATED_ADDRESS)
+            .email(UPDATED_EMAIL)
+            .phone(UPDATED_PHONE)
+            .description(UPDATED_DESCRIPTION);
 
         restShopMockMvc.perform(put("/api/shops")
             .contentType(MediaType.APPLICATION_JSON)
@@ -194,6 +225,9 @@ public class ShopResourceIT {
         assertThat(testShop.getLogo()).isEqualTo(UPDATED_LOGO);
         assertThat(testShop.getLogoContentType()).isEqualTo(UPDATED_LOGO_CONTENT_TYPE);
         assertThat(testShop.getAddress()).isEqualTo(UPDATED_ADDRESS);
+        assertThat(testShop.getEmail()).isEqualTo(UPDATED_EMAIL);
+        assertThat(testShop.getPhone()).isEqualTo(UPDATED_PHONE);
+        assertThat(testShop.getDescription()).isEqualTo(UPDATED_DESCRIPTION);
     }
 
     @Test

@@ -13,6 +13,18 @@
     {
       "fieldName": "address",
       "fieldType": "String"
+    },
+    {
+      "fieldName": "email",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "phone",
+      "fieldType": "Integer"
+    },
+    {
+      "fieldName": "description",
+      "fieldType": "String"
     }
   ],
   "relationships": [
@@ -33,7 +45,7 @@
   "changelogDate": "20201108114039",
   "entityTableName": "shop",
   "dto": "no",
-  "pagination": "no",
+  "pagination": "infinite-scroll",
   "service": "no",
   "jpaMetamodelFiltering": false,
   "fluentMethods": true,

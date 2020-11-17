@@ -19,6 +19,9 @@
       "name": "Name",
       "logo": "Logo",
       "address": "Address",
+      "email": "Email",
+      "phone": "Phone",
+      "description": "Description",
       "product": "Product",
       "user": "User"
     }

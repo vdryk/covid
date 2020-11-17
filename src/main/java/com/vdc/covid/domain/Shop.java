@@ -37,6 +37,15 @@ public class Shop implements Serializable {
     @Column(name = "address")
     private String address;
 
+    @Column(name = "email")
+    private String email;
+
+    @Column(name = "phone")
+    private Integer phone;
+
+    @Column(name = "description")
+    private String description;
+
     @OneToMany(mappedBy = "shop")
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     private Set<Product> products = new HashSet<>();
@@ -106,6 +115,45 @@ public class Shop implements Serializable {
         this.address = address;
     }
 
+    public String getEmail() {
+        return email;
+    }
+
+    public Shop email(String email) {
+        this.email = email;
+        return this;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public Integer getPhone() {
+        return phone;
+    }
+
+    public Shop phone(Integer phone) {
+        this.phone = phone;
+        return this;
+    }
+
+    public void setPhone(Integer phone) {
+        this.phone = phone;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public Shop description(String description) {
+        this.description = description;
+        return this;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
     public Set<Product> getProducts() {
         return products;
     }
@@ -170,6 +218,9 @@ public class Shop implements Serializable {
             ", logo='" + getLogo() + "'" +
             ", logoContentType='" + getLogoContentType() + "'" +
             ", address='" + getAddress() + "'" +
+            ", email='" + getEmail() + "'" +
+            ", phone=" + getPhone() +
+            ", description='" + getDescription() + "'" +
             "}";
     }
 }

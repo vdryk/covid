@@ -1,10 +1,12 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { HttpResponse } from '@angular/common/http';
+import { HttpHeaders, HttpResponse } from '@angular/common/http';
 import { Subscription } from 'rxjs';
-import { JhiEventManager, JhiDataUtils } from 'ng-jhipster';
+import { JhiEventManager, JhiParseLinks, JhiDataUtils } from 'ng-jhipster';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
 import { IShop } from 'app/shared/model/shop.model';
+
+import { ITEMS_PER_PAGE } from 'app/shared/constants/pagination.constants';
 import { ShopService } from './shop.service';
 import { ShopDeleteDialogComponent } from './shop-delete-dialog.component';
 
@@ -13,18 +15,50 @@ import { ShopDeleteDialogComponent } from './shop-delete-dialog.component';
   templateUrl: './shop.component.html',
 })
 export class ShopComponent implements OnInit, OnDestroy {
-  shops?: IShop[];
+  shops: IShop[];
   eventSubscriber?: Subscription;
+  itemsPerPage: number;
+  links: any;
+  page: number;
+  predicate: string;
+  ascending: boolean;
 
   constructor(
     protected shopService: ShopService,
     protected dataUtils: JhiDataUtils,
     protected eventManager: JhiEventManager,
-    protected modalService: NgbModal
-  ) {}
+    protected modalService: NgbModal,
+    protected parseLinks: JhiParseLinks
+  ) {
+    this.shops = [];
+    this.itemsPerPage = ITEMS_PER_PAGE;
+    this.page = 0;
+    this.links = {
+      last: 0,
+    };
+    this.predicate = 'id';
+    this.ascending = true;
+  }
 
   loadAll(): void {
-    this.shopService.query().subscribe((res: HttpResponse<IShop[]>) => (this.shops = res.body || []));
+    this.shopService
+      .query({
+        page: this.page,
+        size: this.itemsPerPage,
+        sort: this.sort(),
+      })
+      .subscribe((res: HttpResponse<IShop[]>) => this.paginateShops(res.body, res.headers));
+  }
+
+  reset(): void {
+    this.page = 0;
+    this.shops = [];
+    this.loadAll();
+  }
+
+  loadPage(page: number): void {
+    this.page = page;
+    this.loadAll();
   }
 
   ngOnInit(): void {
@@ -52,11 +86,29 @@ export class ShopComponent implements OnInit, OnDestroy {
   }
 
   registerChangeInShops(): void {
-    this.eventSubscriber = this.eventManager.subscribe('shopListModification', () => this.loadAll());
+    this.eventSubscriber = this.eventManager.subscribe('shopListModification', () => this.reset());
   }
 
   delete(shop: IShop): void {
     const modalRef = this.modalService.open(ShopDeleteDialogComponent, { size: 'lg', backdrop: 'static' });
     modalRef.componentInstance.shop = shop;
+  }
+
+  sort(): string[] {
+    const result = [this.predicate + ',' + (this.ascending ? 'asc' : 'desc')];
+    if (this.predicate !== 'id') {
+      result.push('id');
+    }
+    return result;
+  }
+
+  protected paginateShops(data: IShop[] | null, headers: HttpHeaders): void {
+    const headersLink = headers.get('link');
+    this.links = this.parseLinks.parse(headersLink ? headersLink : '');
+    if (data) {
+      for (let i = 0; i < data.length; i++) {
+        this.shops.push(data[i]);
+      }
+    }
   }
 }

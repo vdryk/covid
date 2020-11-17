@@ -21,16 +21,19 @@
     <div class="table-responsive" id="entities" *ngIf="shops && shops.length > 0">
         <table class="table table-striped" aria-describedby="page-heading">
             <thead>
-                <tr>
-                    <th scope="col" ><span jhiTranslate="global.field.id">ID</span></th>
-                    <th scope="col" ><span jhiTranslate="covidApp.shop.name">Name</span></th>
-                    <th scope="col" ><span jhiTranslate="covidApp.shop.logo">Logo</span></th>
-                    <th scope="col" ><span jhiTranslate="covidApp.shop.address">Address</span></th>
-                    <th scope="col" ><span jhiTranslate="covidApp.shop.user">User</span></th>
+                <tr jhiSort [(predicate)]="predicate" [(ascending)]="ascending" [callback]="reset.bind(this)">
+                    <th scope="col"  jhiSortBy="id"><span jhiTranslate="global.field.id">ID</span> <fa-icon icon="sort"></fa-icon></th>
+                    <th scope="col"  jhiSortBy="name"><span jhiTranslate="covidApp.shop.name">Name</span> <fa-icon icon="sort"></fa-icon></th>
+                    <th scope="col"  jhiSortBy="logo"><span jhiTranslate="covidApp.shop.logo">Logo</span> <fa-icon icon="sort"></fa-icon></th>
+                    <th scope="col"  jhiSortBy="address"><span jhiTranslate="covidApp.shop.address">Address</span> <fa-icon icon="sort"></fa-icon></th>
+                    <th scope="col"  jhiSortBy="email"><span jhiTranslate="covidApp.shop.email">Email</span> <fa-icon icon="sort"></fa-icon></th>
+                    <th scope="col"  jhiSortBy="phone"><span jhiTranslate="covidApp.shop.phone">Phone</span> <fa-icon icon="sort"></fa-icon></th>
+                    <th scope="col"  jhiSortBy="description"><span jhiTranslate="covidApp.shop.description">Description</span> <fa-icon icon="sort"></fa-icon></th>
+                    <th scope="col"  jhiSortBy="user.login"><span jhiTranslate="covidApp.shop.user">User</span> <fa-icon icon="sort"></fa-icon></th>
                     <th scope="col"></th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody infinite-scroll (scrolled)="loadPage(page + 1)" [infiniteScrollDisabled]="page >= links['last']" [infiniteScrollDistance]="0">
                 <tr *ngFor="let shop of shops ;trackBy: trackId">
                     <td><a [routerLink]="['/shop', shop.id, 'view']">{{ shop.id }}</a></td>
                     <td>{{ shop.name }}</td>
@@ -41,6 +44,9 @@
                         <span *ngIf="shop.logo">{{ shop.logoContentType }}, {{ byteSize(shop.logo) }}</span>
                     </td>
                     <td>{{ shop.address }}</td>
+                    <td>{{ shop.email }}</td>
+                    <td>{{ shop.phone }}</td>
+                    <td>{{ shop.description }}</td>
                     <td>
                         {{ shop.user?.login }}
                     </td>
