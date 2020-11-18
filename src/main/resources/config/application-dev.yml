@@ -19,6 +19,11 @@ logging:
     io.github.jhipster: DEBUG
     com.vdc.covid: DEBUG
 
+management:
+  health:
+    elasticsearch:
+      enabled: false
+
 spring:
   profiles:
     active: dev
@@ -49,6 +54,11 @@ spring:
   jpa:
     database-platform: io.github.jhipster.domain.util.FixedH2Dialect
     show-sql: true
+  data:
+    elasticsearch:
+      properties:
+        path:
+          home: target/elasticsearch
   liquibase:
     # Remove 'faker' if you do not want the sample data to be loaded automatically
     contexts: dev, faker

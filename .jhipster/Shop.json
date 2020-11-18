@@ -42,7 +42,7 @@
       "otherEntityField": "login"
     }
   ],
-  "changelogDate": "20201108114039",
+  "changelogDate": "20201117234230",
   "entityTableName": "shop",
   "dto": "no",
   "pagination": "infinite-scroll",

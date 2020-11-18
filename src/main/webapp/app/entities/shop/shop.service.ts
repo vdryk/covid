@@ -3,7 +3,7 @@ import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 import { SERVER_API_URL } from 'app/app.constants';
-import { createRequestOption } from 'app/shared/util/request-util';
+import { createRequestOption, SearchWithPagination } from 'app/shared/util/request-util';
 import { IShop } from 'app/shared/model/shop.model';
 
 type EntityResponseType = HttpResponse<IShop>;
@@ -12,6 +12,7 @@ type EntityArrayResponseType = HttpResponse<IShop[]>;
 @Injectable({ providedIn: 'root' })
 export class ShopService {
   public resourceUrl = SERVER_API_URL + 'api/shops';
+  public resourceSearchUrl = SERVER_API_URL + 'api/_search/shops';
 
   constructor(protected http: HttpClient) {}
 
@@ -34,5 +35,10 @@ export class ShopService {
 
   delete(id: number): Observable<HttpResponse<{}>> {
     return this.http.delete(`${this.resourceUrl}/${id}`, { observe: 'response' });
+  }
+
+  search(req: SearchWithPagination): Observable<EntityArrayResponseType> {
+    const options = createRequestOption(req);
+    return this.http.get<IShop[]>(this.resourceSearchUrl, { params: options, observe: 'response' });
   }
 }

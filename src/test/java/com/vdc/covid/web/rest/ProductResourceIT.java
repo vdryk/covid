@@ -3,9 +3,13 @@ package com.vdc.covid.web.rest;
 import com.vdc.covid.CovidApp;
 import com.vdc.covid.domain.Product;
 import com.vdc.covid.repository.ProductRepository;
+import com.vdc.covid.repository.search.ProductSearchRepository;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -15,10 +19,13 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Base64Utils;
 import javax.persistence.EntityManager;
+import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.elasticsearch.index.query.QueryBuilders.queryStringQuery;
 import static org.hamcrest.Matchers.hasItem;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -26,6 +33,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * Integration tests for the {@link ProductResource} REST controller.
  */
 @SpringBootTest(classes = CovidApp.class)
+@ExtendWith(MockitoExtension.class)
 @AutoConfigureMockMvc
 @WithMockUser
 public class ProductResourceIT {
@@ -46,6 +54,14 @@ public class ProductResourceIT {
 
     @Autowired
     private ProductRepository productRepository;
+
+    /**
+     * This repository is mocked in the com.vdc.covid.repository.search test package.
+     *
+     * @see com.vdc.covid.repository.search.ProductSearchRepositoryMockConfiguration
+     */
+    @Autowired
+    private ProductSearchRepository mockProductSearchRepository;
 
     @Autowired
     private EntityManager em;
@@ -110,6 +126,9 @@ public class ProductResourceIT {
         assertThat(testProduct.getThumbnailContentType()).isEqualTo(DEFAULT_THUMBNAIL_CONTENT_TYPE);
         assertThat(testProduct.getDescription()).isEqualTo(DEFAULT_DESCRIPTION);
         assertThat(testProduct.getPrice()).isEqualTo(DEFAULT_PRICE);
+
+        // Validate the Product in Elasticsearch
+        verify(mockProductSearchRepository, times(1)).save(testProduct);
     }
 
     @Test
@@ -129,6 +148,9 @@ public class ProductResourceIT {
         // Validate the Product in the database
         List<Product> productList = productRepository.findAll();
         assertThat(productList).hasSize(databaseSizeBeforeCreate);
+
+        // Validate the Product in Elasticsearch
+        verify(mockProductSearchRepository, times(0)).save(product);
     }
 
 
@@ -142,9 +164,14 @@ public class ProductResourceIT {
         restProductMockMvc.perform(get("/api/products?sort=id,desc"))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
-            .andExpect(jsonPath("$.[*].id").isEmpty());
+            .andExpect(jsonPath("$.[*].id").value(hasItem(product.getId().intValue())))
+            .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME)))
+            .andExpect(jsonPath("$.[*].thumbnailContentType").value(hasItem(DEFAULT_THUMBNAIL_CONTENT_TYPE)))
+            .andExpect(jsonPath("$.[*].thumbnail").value(hasItem(Base64Utils.encodeToString(DEFAULT_THUMBNAIL))))
+            .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION)))
+            .andExpect(jsonPath("$.[*].price").value(hasItem(DEFAULT_PRICE.doubleValue())));
     }
-
+    
     @Test
     @Transactional
     public void getProduct() throws Exception {
@@ -203,6 +230,9 @@ public class ProductResourceIT {
         assertThat(testProduct.getThumbnailContentType()).isEqualTo(UPDATED_THUMBNAIL_CONTENT_TYPE);
         assertThat(testProduct.getDescription()).isEqualTo(UPDATED_DESCRIPTION);
         assertThat(testProduct.getPrice()).isEqualTo(UPDATED_PRICE);
+
+        // Validate the Product in Elasticsearch
+        verify(mockProductSearchRepository, times(1)).save(testProduct);
     }
 
     @Test
@@ -219,6 +249,9 @@ public class ProductResourceIT {
         // Validate the Product in the database
         List<Product> productList = productRepository.findAll();
         assertThat(productList).hasSize(databaseSizeBeforeUpdate);
+
+        // Validate the Product in Elasticsearch
+        verify(mockProductSearchRepository, times(0)).save(product);
     }
 
     @Test
@@ -237,5 +270,29 @@ public class ProductResourceIT {
         // Validate the database contains one less item
         List<Product> productList = productRepository.findAll();
         assertThat(productList).hasSize(databaseSizeBeforeDelete - 1);
+
+        // Validate the Product in Elasticsearch
+        verify(mockProductSearchRepository, times(1)).deleteById(product.getId());
+    }
+
+    @Test
+    @Transactional
+    public void searchProduct() throws Exception {
+        // Configure the mock search repository
+        // Initialize the database
+        productRepository.saveAndFlush(product);
+        when(mockProductSearchRepository.search(queryStringQuery("id:" + product.getId())))
+            .thenReturn(Collections.singletonList(product));
+
+        // Search the product
+        restProductMockMvc.perform(get("/api/_search/products?query=id:" + product.getId()))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(jsonPath("$.[*].id").value(hasItem(product.getId().intValue())))
+            .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME)))
+            .andExpect(jsonPath("$.[*].thumbnailContentType").value(hasItem(DEFAULT_THUMBNAIL_CONTENT_TYPE)))
+            .andExpect(jsonPath("$.[*].thumbnail").value(hasItem(Base64Utils.encodeToString(DEFAULT_THUMBNAIL))))
+            .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION)))
+            .andExpect(jsonPath("$.[*].price").value(hasItem(DEFAULT_PRICE.doubleValue())));
     }
 }

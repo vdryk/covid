@@ -2,6 +2,7 @@ package com.vdc.covid.web.rest;
 
 import com.vdc.covid.domain.Shop;
 import com.vdc.covid.repository.ShopRepository;
+import com.vdc.covid.repository.search.ShopSearchRepository;
 import com.vdc.covid.web.rest.errors.BadRequestAlertException;
 
 import io.github.jhipster.web.util.HeaderUtil;
@@ -23,6 +24,10 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
+
+import static org.elasticsearch.index.query.QueryBuilders.*;
 
 /**
  * REST controller for managing {@link com.vdc.covid.domain.Shop}.
@@ -41,8 +46,11 @@ public class ShopResource {
 
     private final ShopRepository shopRepository;
 
-    public ShopResource(ShopRepository shopRepository) {
+    private final ShopSearchRepository shopSearchRepository;
+
+    public ShopResource(ShopRepository shopRepository, ShopSearchRepository shopSearchRepository) {
         this.shopRepository = shopRepository;
+        this.shopSearchRepository = shopSearchRepository;
     }
 
     /**
@@ -59,6 +67,7 @@ public class ShopResource {
             throw new BadRequestAlertException("A new shop cannot already have an ID", ENTITY_NAME, "idexists");
         }
         Shop result = shopRepository.save(shop);
+        shopSearchRepository.save(result);
         return ResponseEntity.created(new URI("/api/shops/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
             .body(result);
@@ -80,6 +89,7 @@ public class ShopResource {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
         Shop result = shopRepository.save(shop);
+        shopSearchRepository.save(result);
         return ResponseEntity.ok()
             .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, shop.getId().toString()))
             .body(result);
@@ -122,6 +132,23 @@ public class ShopResource {
     public ResponseEntity<Void> deleteShop(@PathVariable Long id) {
         log.debug("REST request to delete Shop : {}", id);
         shopRepository.deleteById(id);
+        shopSearchRepository.deleteById(id);
         return ResponseEntity.noContent().headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString())).build();
     }
+
+    /**
+     * {@code SEARCH  /_search/shops?query=:query} : search for the shop corresponding
+     * to the query.
+     *
+     * @param query the query of the shop search.
+     * @param pageable the pagination information.
+     * @return the result of the search.
+     */
+    @GetMapping("/_search/shops")
+    public ResponseEntity<List<Shop>> searchShops(@RequestParam String query, Pageable pageable) {
+        log.debug("REST request to search for a page of Shops for query {}", query);
+        Page<Shop> page = shopSearchRepository.search(queryStringQuery(query), pageable);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        return ResponseEntity.ok().headers(headers).body(page.getContent());
+        }
 }

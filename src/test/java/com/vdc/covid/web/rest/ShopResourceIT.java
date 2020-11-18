@@ -3,22 +3,31 @@ package com.vdc.covid.web.rest;
 import com.vdc.covid.CovidApp;
 import com.vdc.covid.domain.Shop;
 import com.vdc.covid.repository.ShopRepository;
+import com.vdc.covid.repository.search.ShopSearchRepository;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Base64Utils;
 import javax.persistence.EntityManager;
+import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.elasticsearch.index.query.QueryBuilders.queryStringQuery;
 import static org.hamcrest.Matchers.hasItem;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -26,6 +35,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * Integration tests for the {@link ShopResource} REST controller.
  */
 @SpringBootTest(classes = CovidApp.class)
+@ExtendWith(MockitoExtension.class)
 @AutoConfigureMockMvc
 @WithMockUser
 public class ShopResourceIT {
@@ -52,6 +62,14 @@ public class ShopResourceIT {
 
     @Autowired
     private ShopRepository shopRepository;
+
+    /**
+     * This repository is mocked in the com.vdc.covid.repository.search test package.
+     *
+     * @see com.vdc.covid.repository.search.ShopSearchRepositoryMockConfiguration
+     */
+    @Autowired
+    private ShopSearchRepository mockShopSearchRepository;
 
     @Autowired
     private EntityManager em;
@@ -122,6 +140,9 @@ public class ShopResourceIT {
         assertThat(testShop.getEmail()).isEqualTo(DEFAULT_EMAIL);
         assertThat(testShop.getPhone()).isEqualTo(DEFAULT_PHONE);
         assertThat(testShop.getDescription()).isEqualTo(DEFAULT_DESCRIPTION);
+
+        // Validate the Shop in Elasticsearch
+        verify(mockShopSearchRepository, times(1)).save(testShop);
     }
 
     @Test
@@ -141,6 +162,9 @@ public class ShopResourceIT {
         // Validate the Shop in the database
         List<Shop> shopList = shopRepository.findAll();
         assertThat(shopList).hasSize(databaseSizeBeforeCreate);
+
+        // Validate the Shop in Elasticsearch
+        verify(mockShopSearchRepository, times(0)).save(shop);
     }
 
 
@@ -228,6 +252,9 @@ public class ShopResourceIT {
         assertThat(testShop.getEmail()).isEqualTo(UPDATED_EMAIL);
         assertThat(testShop.getPhone()).isEqualTo(UPDATED_PHONE);
         assertThat(testShop.getDescription()).isEqualTo(UPDATED_DESCRIPTION);
+
+        // Validate the Shop in Elasticsearch
+        verify(mockShopSearchRepository, times(1)).save(testShop);
     }
 
     @Test
@@ -244,6 +271,9 @@ public class ShopResourceIT {
         // Validate the Shop in the database
         List<Shop> shopList = shopRepository.findAll();
         assertThat(shopList).hasSize(databaseSizeBeforeUpdate);
+
+        // Validate the Shop in Elasticsearch
+        verify(mockShopSearchRepository, times(0)).save(shop);
     }
 
     @Test
@@ -262,5 +292,31 @@ public class ShopResourceIT {
         // Validate the database contains one less item
         List<Shop> shopList = shopRepository.findAll();
         assertThat(shopList).hasSize(databaseSizeBeforeDelete - 1);
+
+        // Validate the Shop in Elasticsearch
+        verify(mockShopSearchRepository, times(1)).deleteById(shop.getId());
+    }
+
+    @Test
+    @Transactional
+    public void searchShop() throws Exception {
+        // Configure the mock search repository
+        // Initialize the database
+        shopRepository.saveAndFlush(shop);
+        when(mockShopSearchRepository.search(queryStringQuery("id:" + shop.getId()), PageRequest.of(0, 20)))
+            .thenReturn(new PageImpl<>(Collections.singletonList(shop), PageRequest.of(0, 1), 1));
+
+        // Search the shop
+        restShopMockMvc.perform(get("/api/_search/shops?query=id:" + shop.getId()))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(jsonPath("$.[*].id").value(hasItem(shop.getId().intValue())))
+            .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME)))
+            .andExpect(jsonPath("$.[*].logoContentType").value(hasItem(DEFAULT_LOGO_CONTENT_TYPE)))
+            .andExpect(jsonPath("$.[*].logo").value(hasItem(Base64Utils.encodeToString(DEFAULT_LOGO))))
+            .andExpect(jsonPath("$.[*].address").value(hasItem(DEFAULT_ADDRESS)))
+            .andExpect(jsonPath("$.[*].email").value(hasItem(DEFAULT_EMAIL)))
+            .andExpect(jsonPath("$.[*].phone").value(hasItem(DEFAULT_PHONE)))
+            .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION)));
     }
 }

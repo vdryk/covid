@@ -14,7 +14,6 @@ import java.util.List;
 @Repository
 public interface ShopRepository extends JpaRepository<Shop, Long> {
 
-    //@Query("select distinct shop from Shop shop join fetch shop.products  where shop.user.login = ?#{principal.username}")
     @Query("select shop from Shop shop where shop.user.login = ?#{principal.username}")
     List<Shop> findByUserIsCurrentUser();
 }

@@ -5,6 +5,7 @@
         "title": "Shops",
         "createLabel": "Create a new Shop",
         "createOrEditLabel": "Create or edit a Shop",
+        "search": "Search for Shop",
         "notFound": "No Shops found"
       },
       "created": "A new Shop is created with identifier {{ param }}",

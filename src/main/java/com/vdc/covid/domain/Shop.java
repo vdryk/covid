@@ -6,6 +6,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import javax.persistence.*;
 
+import org.springframework.data.elasticsearch.annotations.FieldType;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
@@ -16,6 +17,7 @@ import java.util.Set;
 @Entity
 @Table(name = "shop")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+@org.springframework.data.elasticsearch.annotations.Document(indexName = "shop")
 public class Shop implements Serializable {
 
     private static final long serialVersionUID = 1L;

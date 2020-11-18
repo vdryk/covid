@@ -22,8 +22,6 @@ export class NavbarComponent implements OnInit {
   swaggerEnabled?: boolean;
   version: string;
 
-  showUserSearch = false;
-
   constructor(
     private loginService: LoginService,
     private languageService: JhiLanguageService,
@@ -72,9 +70,5 @@ export class NavbarComponent implements OnInit {
 
   getImageUrl(): string {
     return this.isAuthenticated() ? this.accountService.getImageUrl() : '';
-  }
-
-  displaySearch(): void {
-    this.showUserSearch = !this.showUserSearch;
   }
 }
