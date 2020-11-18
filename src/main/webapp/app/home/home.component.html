@@ -1,30 +1,15 @@
 <div>
-
-    <div>
-        <ngb-accordion #a="ngbAccordion" activeIds="custom-panel-1" *ngIf="shops && shops.length">
-            <ngb-panel id="custom-panel-1" *ngFor="let shop of shops ;trackBy: trackId">
-                <ng-template ngbPanelHeader>
-                    <div class="d-flex align-items-center justify-content-between">
-                        <button ngbPanelToggle class="btn btn-link container-fluid text-left pl-0">
-                            <img [src]="'data:' + shop.logoContentType + ';base64,' + shop.logo"
-                                style="max-height: 30px;" alt="shop image" />
-                            <span>{{ shop.name }}</span>
-                        </button>
-                    </div>
-                </ng-template>
-                <ng-template ngbPanelContent>
-                    <div *ngFor="let product of shop.products ">
-                        <span *ngIf="product.thumbnail">
-                            <img [src]="'data:' + product.thumbnailContentType + ';base64,' + product.thumbnail"
-                                style="max-height: 200px;" alt="product image" />
-                        </span>
-                        <h3>{{ product.name }}</h3>
-                        <span>{{ product.description }}</span>
-                        <span>{{ product.price }} €</span>
-                    </div>
-                </ng-template>
-            </ngb-panel>
-        </ngb-accordion>
-
+    <div *ngIf="products && products.length" style="display: flex;">
+        <div class="card card-detail" style="width: 18rem;" *ngFor="let product of products ;trackBy: trackId">
+            <img class="card-img-top" [src]="product.thumbnail" style="max-height: 200px;" alt="product image" />
+            <div class="card-body">
+                <h5 class="card-title">
+                    {{ product.name }} - {{ product.price | currency:'EUR' }}</h5>
+                <p class="card-text">{{ product.description }}</p>
+            </div>
+            <div class="card-action">
+                <a href="#" class="btn btn-primary">Acheter</a>
+            </div>
+        </div>
     </div>
 </div>
