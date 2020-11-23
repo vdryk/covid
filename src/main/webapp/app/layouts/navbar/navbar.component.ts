@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { JhiLanguageService } from 'ng-jhipster';
+import { JhiEventManager, JhiEventWithContent, JhiLanguageService } from 'ng-jhipster';
 import { SessionStorageService } from 'ngx-webstorage';
 
 import { VERSION } from 'app/app.constants';
@@ -9,6 +9,9 @@ import { AccountService } from 'app/core/auth/account.service';
 import { LoginModalService } from 'app/core/login/login-modal.service';
 import { LoginService } from 'app/core/login/login.service';
 import { ProfileService } from 'app/layouts/profiles/profile.service';
+import { ShopService } from 'app/entities/shop/shop.service';
+import { HttpResponse } from '@angular/common/http';
+import { IShop } from 'app/shared/model/shop.model';
 
 @Component({
   selector: 'jhi-navbar',
@@ -31,6 +34,8 @@ export class NavbarComponent implements OnInit {
     private accountService: AccountService,
     private loginModalService: LoginModalService,
     private profileService: ProfileService,
+    private eventManager: JhiEventManager,
+    private shopService: ShopService,
     private router: Router
   ) {
     this.version = VERSION ? (VERSION.toLowerCase().startsWith('v') ? VERSION : 'v' + VERSION) : '';
@@ -76,5 +81,22 @@ export class NavbarComponent implements OnInit {
 
   displaySearch(): void {
     this.showUserSearch = !this.showUserSearch;
+  }
+
+  loadShopsInHomepage(queryText: string): void {
+    if (!queryText) {
+      this.shopService
+        .query()
+        .subscribe((res: HttpResponse<IShop[]>) => this.eventManager.broadcast(new JhiEventWithContent('shopsInHomepage', res.body || [])));
+    } else {
+      this.shopService
+        .search({
+          query: queryText,
+          page: 0,
+          size: 20,
+          sort: [],
+        })
+        .subscribe((res: HttpResponse<IShop[]>) => this.eventManager.broadcast(new JhiEventWithContent('shopsInHomepage', res.body || [])));
+    }
   }
 }

@@ -195,6 +195,6 @@
     </div>
 </nav>
 
-<div class="user-search" [class.fade-in]="showUserSearch">
-    <input placeholder="Rechercher un produit...">
-</div>
+<form class="user-search" [class.fade-in]="showUserSearch" (ngSubmit)="loadShopsInHomepage(query.value); displaySearch()">
+    <input #query placeholder="Rechercher un produit..." type="text">
+</form>
