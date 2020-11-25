@@ -91,7 +91,7 @@ export class NavbarComponent implements OnInit {
     } else {
       this.shopService
         .search({
-          query: queryText,
+          query: queryText + '~',
           page: 0,
           size: 20,
           sort: [],

@@ -147,7 +147,7 @@ public class ShopResource {
     @GetMapping("/_search/shops")
     public ResponseEntity<List<Shop>> searchShops(@RequestParam String query, Pageable pageable) {
         log.debug("REST request to search for a page of Shops for query {}", query);
-        Page<Shop> page = shopSearchRepository.search(queryStringQuery(query + "~"), pageable);
+        Page<Shop> page = shopSearchRepository.search(queryStringQuery(query), pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
         }
